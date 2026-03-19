@@ -44,12 +44,12 @@ const AnimatedTitle = ({ title, containerClass }: AnimatedTitleProps) => {
       {title.split("<br />").map((line: string, index: number) => (
         <div
           key={index}
-          className="flex-center max-w-full flex-wrap gap-2 px-10 md:gap-3"
+          className="flex-center max-w-full flex-wrap gap-2 px-4 sm:px-6 md:gap-3 md:px-10"
         >
           {line.split(" ").map((word: string, idx: number) => (
             <span
               key={idx}
-              className="animated-word"
+              className="animated-word wrap-break-word"
               dangerouslySetInnerHTML={{ __html: word }}
             />
           ))}

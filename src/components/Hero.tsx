@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Button from "./Button";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
@@ -9,57 +9,39 @@ import { ScrollTrigger } from "gsap/all";
 gsap.registerPlugin(ScrollTrigger);
 export const HeroPage = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
-  const [hasClicked, setHasClicked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadedVideos, setLoadedVideos] = useState(0);
-  const nextVideoRef = useRef<HTMLVideoElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNextReady, setIsNextReady] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const preloadRef = useRef<HTMLVideoElement>(null);
   const totalVideos = 6;
-  const upcomingVideoIndex = (currentIndex % totalVideos) + 1;
-
-  useEffect(() => {
-    if (loadedVideos === totalVideos - 1) setIsLoading(true);
-  }, [loadedVideos]);
-
-  const handleMinVdClick = () => {
-    setHasClicked(true);
-    setCurrentIndex(upcomingVideoIndex);
-    setIsLoading(true);
-  };
-
-  const handleVideoLoad = () => {
-    setLoadedVideos((pre) => pre + 1);
-  };
+  const getNextIndex = (index: number) => (index % totalVideos) + 1;
 
   const getVideoSrc = (index: number) => `videos/hero-${index}.mp4`;
 
-  useGSAP(
-    () => {
-      if (hasClicked) {
-        gsap.set("#next-video", { visibility: "visible" });
-        gsap.to("#next-video", {
-          transformOrigin: "center center",
-          scale: 1,
-          width: "100%",
-          height: "100%",
-          duration: 1,
-          ease: "power1.inOut",
-          onStart: () => {
-            nextVideoRef.current?.play();
-          },
-        });
-        gsap.from("#current-video", {
-          transformOrigin: "center center",
-          scale: 0,
-          duration: 1.5,
-          ease: "power1.inOut",
-        });
-      }
-    },
-    {
-      dependencies: [currentIndex],
-      revertOnUpdate: true,
-    },
+  const nextIndex = useMemo(
+    () => getNextIndex(currentIndex),
+    [currentIndex],
   );
+
+  useEffect(() => {
+    setIsNextReady(false);
+  }, [currentIndex]);
+
+  const advanceToNext = () => {
+    const nextSrc = preloadRef.current?.currentSrc || getVideoSrc(nextIndex);
+
+    if (isNextReady && videoRef.current) {
+      setIsLoading(false);
+      videoRef.current.src = nextSrc;
+      videoRef.current.load();
+      void videoRef.current.play();
+      setCurrentIndex(nextIndex);
+      return;
+    }
+
+    setIsLoading(true);
+    setCurrentIndex(nextIndex);
+  };
 
   useGSAP(() => {
     gsap.set("#video-frame", {
@@ -80,7 +62,7 @@ export const HeroPage = () => {
   });
 
   return (
-    <div className="relative h-dvh w-screen overflow-x-hidden">
+    <div id="portfolio" className="relative h-dvh w-screen overflow-x-hidden">
       {isLoading && <Loading />}
 
       <div
@@ -88,41 +70,31 @@ export const HeroPage = () => {
         className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg"
       >
         <div>
-          <div className="mask-clip-path absolute-center absolute z-50 size-64 cursor-pointer overflow-hidden rounded-lg">
-            <div
-              onClick={handleMinVdClick}
-              className="origin-center scale-50 opacity-0 transition-all duration-500 ease-in hover:scale-100 hover:opacity-100"
-            >
-              <video
-                ref={nextVideoRef}
-                src={getVideoSrc((currentIndex % totalVideos) + 1)}
-                loop
-                muted
-                id="current-video"
-                className="size-64 origin-center scale-150 object-cover object-center"
-                onLoadedData={handleVideoLoad}
-              />
-            </div>
-          </div>
-
           <video
-            ref={nextVideoRef}
+            ref={videoRef}
             src={getVideoSrc(currentIndex)}
-            loop
-            muted
-            id="next-video"
-            className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
-            onLoadedData={handleVideoLoad}
-          />
-          <video
-            src={getVideoSrc(
-              currentIndex === totalVideos - 1 ? 1 : currentIndex,
-            )}
             autoPlay
-            loop
             muted
+            playsInline
+            preload="auto"
             className="absolute top-0 left-0 size-full object-cover object-center"
-            onLoadedData={handleVideoLoad}
+            onCanPlay={() => setIsLoading(false)}
+            onPlaying={() => setIsLoading(false)}
+            onWaiting={() => setIsLoading(true)}
+            onEnded={advanceToNext}
+            onError={() => setIsLoading(false)}
+          />
+
+          {/* 预加载下一条 */}
+          <video
+            ref={preloadRef}
+            src={getVideoSrc(nextIndex)}
+            muted
+            playsInline
+            preload="auto"
+            className="hidden"
+            onCanPlayThrough={() => setIsNextReady(true)}
+            onError={() => setIsNextReady(false)}
           />
         </div>
 
@@ -146,7 +118,8 @@ export const HeroPage = () => {
               id="watch-trailer"
               title="立即游玩"
               leftIcon={<ArrowRight />}
-              containerClass="bg-yellow-300 flex-center gap-1"
+              containerClass="bg-yellow-300 flex-center gap-1 font-bold"
+              onClick={() => window.location.href = "https://www.leagueoflegends.com/en-gb/"}
             />
           </div>
         </div>

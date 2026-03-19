@@ -1,5 +1,9 @@
-import { ArrowRight } from "lucide-react";
-import { useState, useRef, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/all";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface BentoTiltProps {
   children: ReactNode;
@@ -10,7 +14,6 @@ interface BentoCardProps {
   src: string;
   title: ReactNode;
   description?: string;
-  isComingSoon?: boolean;
 }
 
 export const BentoTilt = ({ children, className = "" }: BentoTiltProps) => {
@@ -54,25 +57,7 @@ export const BentoCard = ({
   src,
   title,
   description,
-  isComingSoon,
 }: BentoCardProps) => {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [hoverOpacity, setHoverOpacity] = useState(0);
-  const hoverButtonRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!hoverButtonRef.current) return;
-    const rect = hoverButtonRef.current.getBoundingClientRect();
-
-    setCursorPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
-  };
-
-  const handleMouseEnter = () => setHoverOpacity(1);
-  const handleMouseLeave = () => setHoverOpacity(0);
-
   return (
     <div className="relative size-full">
       <video
@@ -94,14 +79,33 @@ export const BentoCard = ({
   );
 };
 
-const Featurespage = () => (
-  <section className="bg-black pb-52">
+const Featurespage = () => {
+  const textWrapRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!textWrapRef.current) return;
+
+    gsap.from(textWrapRef.current.querySelectorAll(".prologue-animate"), {
+      y: 16,
+      opacity: 0,
+      duration: 0.9,
+      ease: "power2.out",
+      stagger: 0.12,
+      scrollTrigger: {
+        trigger: textWrapRef.current,
+        start: "top 70%",
+      },
+    });
+  }, []);
+
+  return (
+    <section id="prologue" className="bg-black pb-52">
     <div className="container mx-auto px-3 md:px-10">
-      <div className="px-5 py-32">
-        <p className="font-circular-web text-lg text-blue-50">
+      <div ref={textWrapRef} className="px-5 py-32">
+        <p className="prologue-animate font-circular-web text-lg text-blue-50">
           “我来自两个世界，却不属于任何一处”——希瓦娜
         </p>
-        <p className="font-circular-web max-w-md text-lg text-blue-50 opacity-50">
+        <p className="prologue-animate font-circular-web max-w-md text-lg text-blue-50 opacity-50">
           希瓦娜是超越凡人的生物，心中燃烧着纯粹的元素魔法。虽然她平时以人的形象出现，但在必要的时候，她能显露出真正的形态，变为一条威猛的巨龙，用龙息烈焰吞噬敌人。希瓦娜曾拯救过皇子嘉文四世的性命，如今她心神不安地在皇子的卫队中效力，力图在多疑的德玛西亚人中求得接纳
         </p>
       </div>
@@ -111,7 +115,6 @@ const Featurespage = () => (
           src="videos/feature-1.mp4"
           title={<>Shyvana</>}
           description="Runeterra"
-          isComingSoon
         />
       </BentoTilt>
 
@@ -121,25 +124,22 @@ const Featurespage = () => (
             src="videos/feature-2.mp4"
             title={<>In the eyes of the enemy, I am fear</>}
             description="我将在他们的灰烬之中起舞"
-            isComingSoon
           />
         </BentoTilt>
 
-        <BentoTilt className="bento-tilt_1 row-span-1 ms-32 md:col-span-1 md:ms-0">
+        <BentoTilt className="bento-tilt_1 row-span-1 md:col-span-1">
           <BentoCard
             src="videos/feature-3.mp4"
             title
             description=""
-            isComingSoon
           />
         </BentoTilt>
 
-        <BentoTilt className="bento-tilt_1 me-14 md:col-span-1 md:me-0">
+        <BentoTilt className="bento-tilt_1 md:col-span-1">
           <BentoCard
             src="videos/feature-4.mp4"
             title={<>The demon dragon descended into the world</>}
             description="德玛西亚武运必彰"
-            isComingSoon
           />
         </BentoTilt>
 
@@ -166,6 +166,7 @@ const Featurespage = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default Featurespage;

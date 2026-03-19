@@ -46,7 +46,7 @@ const FloatingImage = () => {
   };
 
   return (
-    <div id="story" className="min-h-dvh w-screen bg-black text-blue-50">
+    <div id="about" className="min-h-dvh w-screen bg-black text-blue-50">
       <div className="flex size-full flex-col items-center py-10 pb-24">
         <p className="font-general text-sm uppercase md:text-[10px]">
           League of Legends
@@ -109,7 +109,7 @@ const FloatingImage = () => {
               在这里，魔法不只是一种神秘莫测的能量概念。它是实体化的物质，可以被引导、成形、塑造和操作。符文之地的魔法拥有自己的自然法则。源生态魔法随机变化的结果改变了科学法则。
             </p>
 
-            <Button id="realm-btn" title="继续探索" containerClass="mt-5" />
+            <Button onClick={() => window.location.href = "https://www.leagueoflegends.com/en-gb/"} id="realm-btn" title="继续探索" containerClass="mt-5" />
           </div>
         </div>
       </div>

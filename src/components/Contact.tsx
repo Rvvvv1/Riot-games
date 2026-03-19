@@ -19,18 +19,18 @@ const ContactPage = () => {
       <div className="relative rounded-lg bg-black py-24 text-blue-50 sm:overflow-hidden">
         <div className="absolute top-0 -left-20 hidden h-full w-72 overflow-hidden sm:block lg:left-20 lg:w-96">
           <ImageClipBox
-            src="/img/contact-1.webp"
+            src="/img/contact-2.webp"
             clipClass="contact-clip-path-1"
             alt="Contact image 1"
           />
           <ImageClipBox
-            src="/img/contact-2.webp"
+            src="/img/gallery-4.webp"
             clipClass="contact-clip-path-2 lg:translate-y-40 translate-y-60"
             alt="Contact image 2"
           />
         </div>
 
-        <div className="absolute -top-40 left-20 w-60 sm:top-1/2 md:right-10 md:left-auto lg:top-20 lg:w-80">
+        <div className="absolute -top-40 left-20 hidden w-60 sm:block sm:top-1/2 md:right-10 md:left-auto lg:top-20 lg:w-80">
           <ImageClipBox
             src="/img/gallery-2.webp"
             clipClass="sword-man-clip-path md:scale-125"
