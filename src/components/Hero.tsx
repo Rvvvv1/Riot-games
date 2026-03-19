@@ -3,13 +3,11 @@ import Button from "./Button";
 import { ArrowRight } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { Loading } from "./Loading";
 import { ScrollTrigger } from "gsap/all";
 
 gsap.registerPlugin(ScrollTrigger);
 export const HeroPage = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const [isNextReady, setIsNextReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const preloadRef = useRef<HTMLVideoElement>(null);
@@ -31,7 +29,6 @@ export const HeroPage = () => {
     const nextSrc = preloadRef.current?.currentSrc || getVideoSrc(nextIndex);
 
     if (isNextReady && videoRef.current) {
-      setIsLoading(false);
       videoRef.current.src = nextSrc;
       videoRef.current.load();
       void videoRef.current.play();
@@ -39,7 +36,6 @@ export const HeroPage = () => {
       return;
     }
 
-    setIsLoading(true);
     setCurrentIndex(nextIndex);
   };
 
@@ -63,8 +59,6 @@ export const HeroPage = () => {
 
   return (
     <div id="portfolio" className="relative h-dvh w-screen overflow-x-hidden">
-      {isLoading && <Loading />}
-
       <div
         id="video-frame"
         className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg"
@@ -78,11 +72,8 @@ export const HeroPage = () => {
             playsInline
             preload="auto"
             className="absolute top-0 left-0 size-full object-cover object-center"
-            onCanPlay={() => setIsLoading(false)}
-            onPlaying={() => setIsLoading(false)}
-            onWaiting={() => setIsLoading(true)}
             onEnded={advanceToNext}
-            onError={() => setIsLoading(false)}
+            onError={() => undefined}
           />
 
           {/* 预加载下一条 */}
